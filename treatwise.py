@@ -1,6 +1,6 @@
 from customtkinter import *
 
-# Klassen werden großgeschrieben (PascalCase)
+# Klassen werden großgeschrieben (PascalCase) Huch
 class TaskListApp(CTk):
     
     # Methoden fangen klein an (camelCase)
