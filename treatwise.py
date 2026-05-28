@@ -39,7 +39,7 @@ class TaskListApp(CTk):
             {"date": "2026-04-25", "text": "Termin eintragen", "status": "Fertig"}
         ]
 
-        # Überschrift
+        # Überschrift (Hallo)
         self.titleLabel = CTkLabel(
             self,
             text="Aufgaben für diese Woche",
