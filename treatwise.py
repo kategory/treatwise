@@ -38,7 +38,8 @@ class TaskListApp(CTk):
             {"date": "2026-04-24", "text": "Material bestellen", "status": "Offen"},
             {"date": "2026-04-24", "text": "Website aktualisieren", "status": "Fertig"},
             {"date": "2026-04-25", "text": "Telefonkonferenz führen", "status": "Offen"},
-            {"date": "2026-04-25", "text": "Termin eintragen", "status": "Fertig"}
+            {"date": "2026-04-25", "text": "Termin eintragen", "status": "Fertig"},
+            {"date": "2026-07-09", "text": "Git erklären", "status": "Offen"},
         ]
 
         # Überschrift (Hallo)
