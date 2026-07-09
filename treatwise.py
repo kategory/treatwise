@@ -68,6 +68,8 @@ class TaskListApp(CTk):
             )
             headerLabel.grid(row=0, column=column, sticky="ew", padx=8, pady=(0, 6))
 
+        self.status_buttons = []
+
         for row, task in enumerate(self.tasks, start=1):
             statusColor = "green" if task["status"] == "Fertig" else "orange"
 
@@ -87,14 +89,18 @@ class TaskListApp(CTk):
             )
             textLabel.grid(row=row, column=1, sticky="ew", padx=8, pady=4)
 
-            statusLabel = CTkLabel(
+            statusLabel = CTkButton(
                 self.taskFrame,
                 text=task["status"],
                 anchor="w",
                 font=("Arial", 14),
-                text_color=statusColor
+                text_color=statusColor,
+                fg_color="transparent",
+                hover_color="gray30",
+                command=lambda idx=row-1: self.toggle_status(idx)
             )
             statusLabel.grid(row=row, column=2, sticky="ew", padx=8, pady=4)
+            self.status_buttons.append(statusLabel)
 
         # Exit-Knopf
         self.exitButton = CTkButton(
@@ -105,6 +111,17 @@ class TaskListApp(CTk):
             hover_color="red"
         )
         self.exitButton.pack(pady=(0, 20))
+
+    def toggle_status(self, idx):
+        task = self.tasks[idx]
+        if task["status"] == "Offen":
+            task["status"] = "Fertig"
+        else:
+            task["status"] = "Offen"
+
+        btn = self.status_buttons[idx]
+        statusColor = "green" if task["status"] == "Fertig" else "orange"
+        btn.configure(text=task["status"], text_color=statusColor)
 
     # Die Methode, die den Knopf-Klick verarbeitet
     def exitApp(self):
