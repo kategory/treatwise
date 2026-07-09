@@ -10,6 +10,8 @@ class TaskListApp(CTk):
         # Fenster-Grundeinstellungen
         self.title("Aufgabenliste")
         self.geometry("500x520")
+
+        #testKatja
         
         # Optional: Das Design-Thema festlegen (System, Dark, Light)
         set_appearance_mode("System")
