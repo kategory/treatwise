@@ -11,6 +11,12 @@ class TaskListApp(CTk):
         self.title("Aufgabenliste")
         self.geometry("500x520")
 
+        # Initialer Zoom-Level
+        self.current_scaling = 1.0
+        
+        # Strg + Mausrad zum Zoomen binden
+        self.bind("<Control-MouseWheel>", self.zoom)
+
         #testKatja
         
         # Optional: Das Design-Thema festlegen (System, Dark, Light)
@@ -122,6 +128,20 @@ class TaskListApp(CTk):
         btn = self.status_buttons[idx]
         statusColor = "green" if task["status"] == "Fertig" else "orange"
         btn.configure(text=task["status"], text_color=statusColor)
+
+    def zoom(self, event):
+        # event.delta ist bei Windows ueblicherweise +/- 120
+        if event.delta > 0:
+            self.current_scaling += 0.1
+        elif event.delta < 0:
+            self.current_scaling -= 0.1
+            
+        # Begrenzen wir den Zoom-Level (z.B. zwischen 50% und 250%)
+        self.current_scaling = max(0.5, min(self.current_scaling, 2.5))
+        
+        # Skalierung fuer Widgets und Fenster anwenden
+        set_widget_scaling(self.current_scaling)
+        set_window_scaling(self.current_scaling)
 
     # Die Methode, die den Knopf-Klick verarbeitet
     def exitApp(self):
