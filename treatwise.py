@@ -1,6 +1,13 @@
 from customtkinter import *
 from definitions import currencyName
 
+class Task:
+    def __init__(self, date, text, status, reward):
+        self.date = date
+        self.text = text
+        self.status = status
+        self.reward = reward
+
 # Klassen werden großgeschrieben (PascalCase) Huch
 class TaskListApp(CTk):
     
@@ -26,27 +33,27 @@ class TaskListApp(CTk):
 
         # Aufgaben-Daten im Sourcecode hardcodiert
         self.tasks = [
-            {"date": "2026-04-16", "text": "Einkaufsliste prüfen", "status": "Offen", "reward": 10},
-            {"date": "2026-04-16", "text": "Taschen packen", "status": "Fertig", "reward": 15},
-            {"date": "2026-04-17", "text": "Hausaufgaben kontrollieren", "status": "Offen", "reward": 5},
-            {"date": "2026-04-17", "text": "Rechnung ausdrucken", "status": "Offen", "reward": 5},
-            {"date": "2026-04-18", "text": "Termin bestätigen", "status": "Fertig", "reward": 2},
-            {"date": "2026-04-18", "text": "Projektbesprechung vorbereiten", "status": "Offen", "reward": 20},
-            {"date": "2026-04-19", "text": "Mail beantworten", "status": "Fertig", "reward": 5},
-            {"date": "2026-04-19", "text": "Update installieren", "status": "Offen", "reward": 10},
-            {"date": "2026-04-20", "text": "Präsentation üben", "status": "Offen", "reward": 15},
-            {"date": "2026-04-20", "text": "Benutzerfeedback lesen", "status": "Fertig", "reward": 10},
-            {"date": "2026-04-21", "text": "Bericht fertigstellen", "status": "Offen", "reward": 25},
-            {"date": "2026-04-21", "text": "Fotos sortieren", "status": "Fertig", "reward": 10},
-            {"date": "2026-04-22", "text": "Software testen", "status": "Offen", "reward": 30},
-            {"date": "2026-04-22", "text": "Budget prüfen", "status": "Fertig", "reward": 15},
-            {"date": "2026-04-23", "text": "Backup erstellen", "status": "Offen", "reward": 5},
-            {"date": "2026-04-23", "text": "Workshop planen", "status": "Fertig", "reward": 20},
-            {"date": "2026-04-24", "text": "Material bestellen", "status": "Offen", "reward": 10},
-            {"date": "2026-04-24", "text": "Website aktualisieren", "status": "Fertig", "reward": 15},
-            {"date": "2026-04-25", "text": "Telefonkonferenz führen", "status": "Offen", "reward": 10},
-            {"date": "2026-04-25", "text": "Termin eintragen", "status": "Fertig", "reward": 2},
-            {"date": "2026-07-09", "text": "Git erklären", "status": "Offen", "reward": 50},
+            Task( "2026-04-16", "Einkaufsliste prüfen", "Offen", 10 ),
+            Task( "2026-04-16", "Taschen packen", "Fertig", 15),
+            Task( "2026-04-17", "Hausaufgaben kontrollieren", "Offen", 5),
+            Task( "2026-04-17", "Rechnung ausdrucken", "Offen", 5),
+            Task( "2026-04-18", "Termin bestätigen", "Fertig", 2),
+            Task( "2026-04-18", "Projektbesprechung vorbereiten", "Offen", 20),
+            Task( "2026-04-19", "Mail beantworten", "Fertig", 5),
+            Task( "2026-04-19", "Update installieren", "Offen", 10),
+            Task( "2026-04-20", "Präsentation üben", "Offen", 15),
+            Task( "2026-04-20", "Benutzerfeedback lesen", "Fertig", 10),
+            Task( "2026-04-21", "Bericht fertigstellen", "Offen", 25),
+            Task( "2026-04-21", "Fotos sortieren", "Fertig", 10),
+            Task( "2026-04-22", "Software testen", "Offen", 30),
+            Task( "2026-04-22", "Budget prüfen", "Fertig", 15),
+            Task( "2026-04-23", "Backup erstellen", "Offen", 5),
+            Task( "2026-04-23", "Workshop planen", "Fertig", 20),
+            Task( "2026-04-24", "Material bestellen", "Offen", 10),
+            Task( "2026-04-24", "Website aktualisieren", "Fertig", 15),
+            Task( "2026-04-25", "Telefonkonferenz führen", "Offen", 10),
+            Task( "2026-04-25", "Termin eintragen", "Fertig", 2),
+            Task( "2026-07-09", "Git erklären", "Offen", 50)
         ]
 
         # Überschrift (Hallo)
@@ -80,11 +87,11 @@ class TaskListApp(CTk):
         self.rewardVars = []
 
         for row, task in enumerate(self.tasks, start=1):
-            statusColor = "green" if task["status"] == "Fertig" else "orange"
+            statusColor = "green" if task.status == "Fertig" else "orange"
 
             dateLabel = CTkLabel(
                 self.taskFrame,
-                text=task["date"],
+                text=task.date,
                 anchor="w",
                 font=("Arial", 14)
             )
@@ -92,7 +99,7 @@ class TaskListApp(CTk):
 
             textLabel = CTkLabel(
                 self.taskFrame,
-                text=task["text"],
+                text=task.text,
                 anchor="w",
                 font=("Arial", 14)
             )
@@ -100,7 +107,7 @@ class TaskListApp(CTk):
 
             statusLabel = CTkButton(
                 self.taskFrame,
-                text=task["status"],
+                text=task.status,
                 anchor="w",
                 font=("Arial", 14),
                 text_color=statusColor,
@@ -111,7 +118,7 @@ class TaskListApp(CTk):
             statusLabel.grid(row=row, column=2, sticky="ew", padx=8, pady=4)
             self.statusButtons.append(statusLabel)
             
-            rewardVar = StringVar(value=str(task["reward"]))
+            rewardVar = StringVar(value=str(task.reward))
             rewardVar.trace_add("write", self.updateRewardSum)
             self.rewardVars.append(rewardVar)
             
@@ -145,21 +152,21 @@ class TaskListApp(CTk):
 
     def toggleStatus(self, idx):
         task = self.tasks[idx]
-        if task["status"] == "Offen":
-            task["status"] = "Fertig"
+        if task.status == "Offen":
+            task.status = "Fertig"
         else:
-            task["status"] = "Offen"
+            task.status = "Offen"
 
         btn = self.statusButtons[idx]
-        statusColor = "green" if task["status"] == "Fertig" else "orange"
-        btn.configure(text=task["status"], text_color=statusColor)
+        statusColor = "green" if task.status == "Fertig" else "orange"
+        btn.configure(text=task.status, text_color=statusColor)
         
         self.updateRewardSum()
 
     def updateRewardSum(self, *args):
         total = 0
         for i, task in enumerate(self.tasks):
-            if task["status"] == "Fertig":
+            if task.status == "Fertig":
                 try:
                     val = int(self.rewardVars[i].get())
                     total += val
