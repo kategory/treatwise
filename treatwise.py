@@ -1,12 +1,6 @@
 from customtkinter import *
 from definitions import currencyName
-
-class Task:
-    def __init__(self, date, text, status, reward):
-        self.date = date
-        self.text = text
-        self.status = status
-        self.reward = reward
+from task import *
 
 # Klassen werden großgeschrieben (PascalCase) Huch
 class TaskListApp(CTk):
@@ -32,7 +26,7 @@ class TaskListApp(CTk):
         set_default_color_theme("blue")
 
         # Aufgaben-Daten im Sourcecode hardcodiert
-        self.tasks = [
+        self.tasks = Tasks([
             Task( "2026-04-16", "Einkaufsliste prüfen", "Offen", 10 ),
             Task( "2026-04-16", "Taschen packen", "Fertig", 15),
             Task( "2026-04-17", "Hausaufgaben kontrollieren", "Offen", 5),
@@ -54,7 +48,7 @@ class TaskListApp(CTk):
             Task( "2026-04-25", "Telefonkonferenz führen", "Offen", 10),
             Task( "2026-04-25", "Termin eintragen", "Fertig", 2),
             Task( "2026-07-09", "Git erklären", "Offen", 50)
-        ]
+        ])
 
         # Überschrift (Hallo)
         self.titleLabel = CTkLabel(
@@ -86,7 +80,7 @@ class TaskListApp(CTk):
         self.statusButtons = []
         self.rewardVars = []
 
-        for row, task in enumerate(self.tasks, start=1):
+        for row, task in enumerate(self.tasks.collection, start=1):
             statusColor = "green" if task.status == "Fertig" else "orange"
 
             dateLabel = CTkLabel(
@@ -151,7 +145,7 @@ class TaskListApp(CTk):
         self.updateRewardSum()
 
     def toggleStatus(self, idx):
-        task = self.tasks[idx]
+        task = self.tasks.collection[idx]
         if task.status == "Offen":
             task.status = "Fertig"
         else:
@@ -165,7 +159,7 @@ class TaskListApp(CTk):
 
     def updateRewardSum(self, *args):
         total = 0
-        for i, task in enumerate(self.tasks):
+        for i, task in enumerate(self.tasks.collection):
             if task.status == "Fertig":
                 try:
                     val = int(self.rewardVars[i].get())
