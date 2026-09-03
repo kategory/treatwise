@@ -74,7 +74,6 @@ class TaskListApp(CTk):
 
         # Widgets state
         self.statusButtons = []
-        self.rewardVars = []
 
         # Render the initial table (will use current sort state)
         self.renderTable()
@@ -119,15 +118,7 @@ class TaskListApp(CTk):
         self.updateRewardSum()
 
     def updateRewardSum(self, *args):
-        total = 0
-        for i, task in enumerate(self.tasks.collection):
-            if task.status == "Fertig":
-                try:
-                    val = int(self.rewardVars[i].get())
-                    total += val
-                except ValueError:
-                    pass
-        self.rewardSumLabel.configure(text=f"Summe {currencyName}: {total}")
+        self.rewardSumLabel.configure(text=f"Summe {currencyName}: {self.tasks.reward()}")
 
     def zoom(self, event):
         # event.delta ist bei Windows ueblicherweise +/- 120
@@ -215,7 +206,6 @@ class TaskListApp(CTk):
 
         headers = ["Datum", "Aufgabe", "Status", currencyName]
         self.statusButtons = []
-        self.rewardVars = []
 
         for column, header in enumerate(headers):
             # Add arrow indicator if this is the active sort column
@@ -266,13 +256,9 @@ class TaskListApp(CTk):
             statusLabel.grid(row=row, column=2, sticky="ew", padx=8, pady=4)
             self.statusButtons.append(statusLabel)
 
-            rewardVar = StringVar(value=str(task.reward))
-            rewardVar.trace_add("write", self.updateRewardSum)
-            self.rewardVars.append(rewardVar)
-
             rewardEntry = CTkEntry(
                 self.taskFrame,
-                textvariable=rewardVar,
+                textvariable=StringVar(value=str(task.reward)),
                 width=60,
                 font=("Arial", 14)
             )
