@@ -1,6 +1,7 @@
 from customtkinter import *
 from definitions import currencyName
 from task import *
+from datetime import datetime
 
 # Klassen werden großgeschrieben (PascalCase) Huch
 class TaskListApp(CTk):
@@ -67,18 +68,171 @@ class TaskListApp(CTk):
         self.taskFrame.grid_columnconfigure(2, minsize=80, weight=0)
         self.taskFrame.grid_columnconfigure(3, minsize=80, weight=0)
 
-        headers = ["Datum", "Aufgabe", "Status", currencyName]
-        for column, header in enumerate(headers):
-            headerLabel = CTkLabel(
-                self.taskFrame,
-                text=header,
-                anchor="w",
-                font=("Arial", 14, "bold")
-            )
-            headerLabel.grid(row=0, column=column, sticky="ew", padx=8, pady=(0, 6))
+        # Sort state: column index (0..3) and direction
+        self.sortColumn = None
+        self.sortAscending = True
 
+        # Widgets state
         self.statusButtons = []
         self.rewardVars = []
+
+        # Render the initial table (will use current sort state)
+        self.renderTable()
+
+        # Summen Label
+        self.rewardSumLabel = CTkLabel(
+            self,
+            text=f"Summe {currencyName}: 0",
+            font=("Arial", 16, "bold")
+        )
+        self.rewardSumLabel.pack(pady=(0, 10))
+
+        # Exit-Knopf
+        self.exitButton = CTkButton(
+            self, 
+            text="Exit", 
+            command=self.exitApp,
+            fg_color="darkred",
+            hover_color="red"
+        )
+        self.exitButton.pack(pady=(0, 20))
+        
+        self.updateRewardSum()
+
+    def toggleStatus(self, idx):
+        task = self.tasks.collection[idx]
+        if task.status == "Offen":
+            task.status = "Fertig"
+        else:
+            task.status = "Offen"
+
+        # update button appearance (buttons correspond to current rendered order)
+        try:
+            btn = self.statusButtons[idx]
+            statusColor = "green" if task.status == "Fertig" else "orange"
+            btn.configure(text=task.status, text_color=statusColor)
+        except IndexError:
+            pass
+
+        # Reapply sort and re-render to preserve ordering
+        self.applySortAndRender()
+        self.updateRewardSum()
+
+    def updateRewardSum(self, *args):
+        total = 0
+        for i, task in enumerate(self.tasks.collection):
+            if task.status == "Fertig":
+                try:
+                    val = int(self.rewardVars[i].get())
+                    total += val
+                except ValueError:
+                    pass
+        self.rewardSumLabel.configure(text=f"Summe {currencyName}: {total}")
+
+    def zoom(self, event):
+        # event.delta ist bei Windows ueblicherweise +/- 120
+        if event.delta > 0:
+            self.currentScaling += 0.1
+        elif event.delta < 0:
+            self.currentScaling -= 0.1
+            
+        # Begrenzen wir den Zoom-Level (z.B. zwischen 50% und 250%)
+        self.currentScaling = max(0.5, min(self.currentScaling, 2.5))
+        
+        # Skalierung fuer Widgets und Fenster anwenden
+        set_widget_scaling(self.currentScaling)
+        set_window_scaling(self.currentScaling)
+
+    # --- Sorting and rendering helpers ---
+    def onHeaderClick(self, column):
+        # Toggle sort direction when clicking same column
+        if self.sortColumn == column:
+            self.sortAscending = not self.sortAscending
+        else:
+            self.sortColumn = column
+            self.sortAscending = True
+
+        self.applySortAndRender()
+
+    def applySortAndRender(self):
+        self.sortTasks()
+        self.renderTable()
+
+    def sortTasks(self):
+        col = self.sortColumn
+        if col is None:
+            return
+
+        def date_key(task):
+            try:
+                dt = datetime.strptime(task.date, "%Y-%m-%d")
+                return (0, dt)
+            except Exception:
+                return (1, None)
+
+        def text_key(task):
+            try:
+                return (0, task.text.lower())
+            except Exception:
+                return (1, "")
+
+        def status_key(task):
+            try:
+                return (0, task.status.lower())
+            except Exception:
+                return (1, "")
+
+        def reward_key(task):
+            try:
+                return (0, float(task.reward))
+            except Exception:
+                try:
+                    return (0, float(str(task.reward)))
+                except Exception:
+                    return (1, 0)
+
+        key_funcs = {
+            0: date_key,
+            1: text_key,
+            2: status_key,
+            3: reward_key
+        }
+
+        key = key_funcs.get(col, text_key)
+        # reverse True means descending
+        self.tasks.collection.sort(key=key, reverse=(not self.sortAscending))
+
+    def renderTable(self):
+        # Clear existing widgets in the frame
+        for w in self.taskFrame.winfo_children():
+            w.destroy()
+
+        # Recreate column sizing (grid config is lost when widgets destroyed)
+        self.taskFrame.grid_columnconfigure(0, minsize=105, weight=0)
+        self.taskFrame.grid_columnconfigure(1, minsize=240, weight=1)
+        self.taskFrame.grid_columnconfigure(2, minsize=80, weight=0)
+        self.taskFrame.grid_columnconfigure(3, minsize=80, weight=0)
+
+        headers = ["Datum", "Aufgabe", "Status", currencyName]
+        self.statusButtons = []
+        self.rewardVars = []
+
+        for column, header in enumerate(headers):
+            # Add arrow indicator if this is the active sort column
+            indicator = ""
+            if self.sortColumn == column:
+                indicator = " ▲" if self.sortAscending else " ▼"
+
+            headerBtn = CTkButton(
+                self.taskFrame,
+                text=header + indicator,
+                anchor="w",
+                font=("Arial", 14, "bold"),
+                fg_color="transparent",
+                hover_color="gray30",
+                command=lambda c=column: self.onHeaderClick(c)
+            )
+            headerBtn.grid(row=0, column=column, sticky="ew", padx=8, pady=(0, 6))
 
         for row, task in enumerate(self.tasks.collection, start=1):
             statusColor = "green" if task.status == "Fertig" else "orange"
@@ -111,11 +265,11 @@ class TaskListApp(CTk):
             )
             statusLabel.grid(row=row, column=2, sticky="ew", padx=8, pady=4)
             self.statusButtons.append(statusLabel)
-            
+
             rewardVar = StringVar(value=str(task.reward))
             rewardVar.trace_add("write", self.updateRewardSum)
             self.rewardVars.append(rewardVar)
-            
+
             rewardEntry = CTkEntry(
                 self.taskFrame,
                 textvariable=rewardVar,
@@ -123,64 +277,6 @@ class TaskListApp(CTk):
                 font=("Arial", 14)
             )
             rewardEntry.grid(row=row, column=3, sticky="e", padx=8, pady=4)
-
-        # Summen Label
-        self.rewardSumLabel = CTkLabel(
-            self,
-            text=f"Summe {currencyName}: 0",
-            font=("Arial", 16, "bold")
-        )
-        self.rewardSumLabel.pack(pady=(0, 10))
-
-        # Exit-Knopf
-        self.exitButton = CTkButton(
-            self, 
-            text="Exit", 
-            command=self.exitApp,
-            fg_color="darkred",
-            hover_color="red"
-        )
-        self.exitButton.pack(pady=(0, 20))
-        
-        self.updateRewardSum()
-
-    def toggleStatus(self, idx):
-        task = self.tasks.collection[idx]
-        if task.status == "Offen":
-            task.status = "Fertig"
-        else:
-            task.status = "Offen"
-
-        btn = self.statusButtons[idx]
-        statusColor = "green" if task.status == "Fertig" else "orange"
-        btn.configure(text=task.status, text_color=statusColor)
-        
-        self.updateRewardSum()
-
-    def updateRewardSum(self, *args):
-        total = 0
-        for i, task in enumerate(self.tasks.collection):
-            if task.status == "Fertig":
-                try:
-                    val = int(self.rewardVars[i].get())
-                    total += val
-                except ValueError:
-                    pass
-        self.rewardSumLabel.configure(text=f"Summe {currencyName}: {total}")
-
-    def zoom(self, event):
-        # event.delta ist bei Windows ueblicherweise +/- 120
-        if event.delta > 0:
-            self.currentScaling += 0.1
-        elif event.delta < 0:
-            self.currentScaling -= 0.1
-            
-        # Begrenzen wir den Zoom-Level (z.B. zwischen 50% und 250%)
-        self.currentScaling = max(0.5, min(self.currentScaling, 2.5))
-        
-        # Skalierung fuer Widgets und Fenster anwenden
-        set_widget_scaling(self.currentScaling)
-        set_window_scaling(self.currentScaling)
 
     # Die Methode, die den Knopf-Klick verarbeitet
     def exitApp(self):
