@@ -1,3 +1,8 @@
+2026-10-01 
+- Lasse pytest in VS Code laufen
+- Verbessere getFirsatWord
+- Schreibe einen weiteren Test
+
 2026-08-20
 - Drive a stake into a chosen ground of knowledge
 - 
