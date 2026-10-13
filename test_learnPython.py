@@ -1,4 +1,6 @@
 from learnPython import getFirstWord
+from learnPython import getFirstWordWithRegex
+from learnPython import getFirstWordWithoutRegex
 
 def helperFunction():
     # This is a helper function that is not a test case.
@@ -56,3 +58,10 @@ Unicode: U+2A6A5
 UTF-8 Hex: F0 AA 9A A5 (Genau 4 Bytes)
 
 '''
+
+def test_getFirstWordWithRegex_firstWordIsSpecialCharacter():
+    inputSentence = "? hello world"
+    expectedResult = "?"
+    assert getFirstWordWithRegex(inputSentence) == expectedResult
+
+# hier bin ich mir nicht sicher, was das "expectedResult" sein sollte, weil "?" ist ja eigentlich kein Wort. Also kommt auf die Definition an.
