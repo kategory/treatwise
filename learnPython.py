@@ -12,7 +12,7 @@ def getFirstWord(sentence):
 
     If the sentence is empty or contains no words, it returns an empty string.
     """
-    # Split the sentence into words using whitespace as the delimiter
+    # Split the sentence into words/token using whitespace as the delimiter
     words = sentence.split()
     
     # Check if there are any words in the list
@@ -46,7 +46,10 @@ def getFirstWordWithoutRegex(sentence):
     return sentence[start:end]
 
     
-    
+# incrementByStandard    
+standardIncrement = 1
+def incrementByStandard( x ):
+        return 0 if x == 0 else 2*(x + standardIncrement)
 
 
     
