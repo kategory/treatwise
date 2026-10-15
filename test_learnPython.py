@@ -65,3 +65,8 @@ def test_getFirstWordWithRegex_firstWordIsSpecialCharacter():
     assert getFirstWordWithRegex(inputSentence) == expectedResult
 
 # hier bin ich mir nicht sicher, was das "expectedResult" sein sollte, weil "?" ist ja eigentlich kein Wort. Also kommt auf die Definition an.
+
+def test_getFirstWord_handlesWordsWithDashes():
+    inputSentence = "well-known fact"
+    expectedResult = "well-known"
+    assert getFirstWord(inputSentence) == expectedResult
